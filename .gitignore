@@ -1,0 +1,40 @@
+# FreeFEM output files
+*.mesh
+*.msh
+*.vtk
+*.vtu
+*.eps
+*.ps
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.tiff
+
+# FreeFEM temporary files
+*.o
+*.so
+*.dylib
+*.dll
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Output directories
+output/
+results/
+plots/
+
+# Temporary files
+tmp/
+temp/

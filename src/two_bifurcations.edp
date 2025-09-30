@@ -1,0 +1,213 @@
+// Two Bifurcations Bronchodilator Diffusion Simulation
+// Heat equation with advection term and Robin boundary conditions
+// Author: eva118 - Most interesting version
+
+// Parameters
+real L1 = 4.0;      // Length of main bronchi
+real L2 = 3.0;      // Length of first generation branches
+real L3 = 2.0;      // Length of second generation branches
+real R1 = 1.0;      // Radius of main bronchi
+real R2 = 0.7;      // Radius of first generation branches
+real R3 = 0.5;      // Radius of second generation branches
+real dt = 0.008;    // Time step (smaller for stability)
+real T = 3.0;       // Final time
+real D = 0.1;       // Diffusion coefficient
+real v = 1.0;       // Advection velocity
+real alpha = 1.0;   // Robin boundary condition parameter
+real beta = 1.0;    // Robin boundary condition parameter
+real angle1 = pi/6; // First bifurcation angle (30 degrees)
+real angle2 = pi/8; // Second bifurcation angle (22.5 degrees)
+
+// Main bronchi
+border main_top(t=0, 1) { x = L1*t; y = R1; label = 1; }
+border main_bottom(t=0, 1) { x = L1*(1-t); y = -R1; label = 1; }
+border inlet(t=0, 1) { x = 0; y = R1*(1-2*t); label = 2; }
+
+// First bifurcation - Upper branch
+real x1 = L1 + L2*cos(angle1);
+real y1 = L2*sin(angle1);
+border branch1_top(t=0, 1) { 
+    x = L1 + L2*t*cos(angle1); 
+    y = L2*t*sin(angle1) + R2; 
+    label = 1; 
+}
+border branch1_bottom(t=0, 1) { 
+    x = L1 + L2*t*cos(angle1); 
+    y = L2*t*sin(angle1) - R2; 
+    label = 1; 
+}
+
+// First bifurcation - Lower branch
+real x2 = L1 + L2*cos(-angle1);
+real y2 = L2*sin(-angle1);
+border branch2_top(t=0, 1) { 
+    x = L1 + L2*t*cos(-angle1); 
+    y = L2*t*sin(-angle1) + R2; 
+    label = 1; 
+}
+border branch2_bottom(t=0, 1) { 
+    x = L1 + L2*t*cos(-angle1); 
+    y = L2*t*sin(-angle1) - R2; 
+    label = 1; 
+}
+
+// Second bifurcation from upper branch
+real x3 = x1 + L3*cos(angle1 + angle2);
+real y3 = y1 + L3*sin(angle1 + angle2);
+border branch3_top(t=0, 1) { 
+    x = x1 + L3*t*cos(angle1 + angle2); 
+    y = y1 + L3*t*sin(angle1 + angle2) + R3; 
+    label = 1; 
+}
+border branch3_bottom(t=0, 1) { 
+    x = x1 + L3*t*cos(angle1 + angle2); 
+    y = y1 + L3*t*sin(angle1 + angle2) - R3; 
+    label = 1; 
+}
+border outlet3(t=0, 1) { 
+    x = x3; 
+    y = y3 + R3*(1-2*t); 
+    label = 3; 
+}
+
+real x4 = x1 + L3*cos(angle1 - angle2);
+real y4 = y1 + L3*sin(angle1 - angle2);
+border branch4_top(t=0, 1) { 
+    x = x1 + L3*t*cos(angle1 - angle2); 
+    y = y1 + L3*t*sin(angle1 - angle2) + R3; 
+    label = 1; 
+}
+border branch4_bottom(t=0, 1) { 
+    x = x1 + L3*t*cos(angle1 - angle2); 
+    y = y1 + L3*t*sin(angle1 - angle2) - R3; 
+    label = 1; 
+}
+border outlet4(t=0, 1) { 
+    x = x4; 
+    y = y4 + R3*(1-2*t); 
+    label = 4; 
+}
+
+// Second bifurcation from lower branch
+real x5 = x2 + L3*cos(-angle1 + angle2);
+real y5 = y2 + L3*sin(-angle1 + angle2);
+border branch5_top(t=0, 1) { 
+    x = x2 + L3*t*cos(-angle1 + angle2); 
+    y = y2 + L3*t*sin(-angle1 + angle2) + R3; 
+    label = 1; 
+}
+border branch5_bottom(t=0, 1) { 
+    x = x2 + L3*t*cos(-angle1 + angle2); 
+    y = y2 + L3*t*sin(-angle1 + angle2) - R3; 
+    label = 1; 
+}
+border outlet5(t=0, 1) { 
+    x = x5; 
+    y = y5 + R3*(1-2*t); 
+    label = 5; 
+}
+
+real x6 = x2 + L3*cos(-angle1 - angle2);
+real y6 = y2 + L3*sin(-angle1 - angle2);
+border branch6_top(t=0, 1) { 
+    x = x2 + L3*t*cos(-angle1 - angle2); 
+    y = y2 + L3*t*sin(-angle1 - angle2) + R3; 
+    label = 1; 
+}
+border branch6_bottom(t=0, 1) { 
+    x = x2 + L3*t*cos(-angle1 - angle2); 
+    y = y2 + L3*t*sin(-angle1 - angle2) - R3; 
+    label = 1; 
+}
+border outlet6(t=0, 1) { 
+    x = x6; 
+    y = y6 + R3*(1-2*t); 
+    label = 6; 
+}
+
+// Build complex mesh
+mesh Th = buildmesh(
+    main_top(20) + main_bottom(20) + inlet(10) + 
+    branch1_top(15) + branch1_bottom(15) + 
+    branch2_top(15) + branch2_bottom(15) +
+    branch3_top(10) + branch3_bottom(10) + outlet3(6) +
+    branch4_top(10) + branch4_bottom(10) + outlet4(6) +
+    branch5_top(10) + branch5_bottom(10) + outlet5(6) +
+    branch6_top(10) + branch6_bottom(10) + outlet6(6)
+);
+
+// Plot the mesh
+plot(Th, wait=true, cmm="Two Bifurcations Mesh - Most Interesting Version");
+
+// Finite element space
+fespace Vh(Th, P1);
+Vh u, v, uold;
+
+// Initial condition with gradient
+func real u0(real x, real y) {
+    if (x < 0.2) return 1.0 - x*2.5;  // Smooth initial gradient
+    else return 0.0;
+}
+
+// Initialize
+u = u0(x, y);
+uold = u;
+
+// Enhanced problem with improved Robin boundary conditions
+problem BronchodilatorDiffusion(u, v) =
+    int2d(Th)(u*v/dt)                           // Time derivative
+    + int2d(Th)(D*(dx(u)*dx(v) + dy(u)*dy(v)))  // Diffusion
+    + int2d(Th)(v*dx(u)*v)                      // Advection along x
+    + int1d(Th, 1)(alpha*u*v)                   // Robin BC on walls
+    - int2d(Th)(uold*v/dt)                      // Previous time step
+    - int1d(Th, 1)(beta*0.1*v)                  // Robin BC with small absorption
+    + on(2, u=1.0);                             // Dirichlet BC at inlet
+
+// Time stepping with enhanced monitoring
+real t = 0;
+int iter = 0;
+cout << "Starting two bifurcations simulation..." << endl;
+
+while (t < T) {
+    t += dt;
+    iter++;
+    
+    BronchodilatorDiffusion;
+    uold = u;
+    
+    // Monitor progress
+    if (iter % 50 == 0) {
+        real maxConc = u[].max;
+        real minConc = u[].min;
+        cout << "t = " << t << ", max concentration = " << maxConc 
+             << ", min concentration = " << minConc << endl;
+        
+        plot(u, fill=true, value=true, cmm="Concentration at t=" + t, 
+             dim=3, wait=false);
+    }
+}
+
+// Final comprehensive visualization
+plot(u, fill=true, value=true, cmm="Final Concentration - Two Bifurcations", 
+     dim=3, wait=true);
+
+// Enhanced data output
+{
+    ofstream file("two_bifurcations_solution.txt");
+    file << "# Final concentration distribution for two bifurcations" << endl;
+    file << "# Most interesting version with complex geometry" << endl;
+    file << "# Parameters: D=" << D << ", v=" << v << ", alpha=" << alpha 
+         << ", beta=" << beta << endl;
+    file << "# x y concentration" << endl;
+    for (int i = 0; i < Th.nv; i++) {
+        file << Th(i).x << " " << Th(i).y << " " << u[][i] << endl;
+    }
+}
+
+// Calculate and display statistics
+real totalMass = int2d(Th)(u);
+real avgConcentration = totalMass / Th.measure;
+cout << "Simulation completed successfully!" << endl;
+cout << "Total mass: " << totalMass << endl;
+cout << "Average concentration: " << avgConcentration << endl;
+cout << "Results saved to two_bifurcations_solution.txt" << endl;

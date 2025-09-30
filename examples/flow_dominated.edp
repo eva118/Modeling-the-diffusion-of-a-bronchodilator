@@ -1,0 +1,57 @@
+// Example: Flow-dominated Transport
+// Demonstrates high advection velocity scenario
+// Shows how bronchodilator moves primarily with the flow
+
+// Parameters for flow-dominated scenario
+real L = 12.0;
+real R = 1.0;
+real dt = 0.005;      // Smaller time step for stability
+real T = 1.5;
+real D = 0.02;        // Low diffusion
+real v = 4.0;         // High advection velocity
+real alpha = 0.5;     // Weak wall interaction
+real beta = 0.5;
+
+// Create elongated bronchi mesh
+border b1(t=0, 1) { x = L*t; y = R; label = 1; }
+border b2(t=0, 1) { x = L*(1-t); y = -R; label = 1; }
+border b3(t=0, 1) { x = 0; y = R*(1-2*t); label = 2; }
+border b4(t=0, 1) { x = L; y = -R*(1-2*t); label = 3; }
+
+mesh Th = buildmesh(b1(30) + b2(30) + b3(8) + b4(8));
+
+fespace Vh(Th, P1);
+Vh u, v, uold;
+
+// Sharp initial pulse
+u = (x < 0.3) ? exp(-50*(x-0.1)^2) : 0.0;
+uold = u;
+
+problem FlowDominated(u, v) =
+    int2d(Th)(u*v/dt)
+    + int2d(Th)(D*(dx(u)*dx(v) + dy(u)*dy(v)))
+    + int2d(Th)(v*dx(u)*v)                    // Strong advection
+    + int1d(Th, 1)(alpha*u*v)
+    - int2d(Th)(uold*v/dt)
+    + on(2, u=exp(-50*(0.1)^2));             // Continuous injection
+
+real t = 0;
+int iter = 0;
+cout << "Running flow-dominated transport example..." << endl;
+
+while (t < T) {
+    t += dt;
+    iter++;
+    
+    FlowDominated;
+    uold = u;
+    
+    if (iter % 30 == 0) {
+        cout << "t = " << t << ", advection front position ≈ " << v*t << endl;
+        plot(u, fill=true, value=true, cmm="Flow Transport at t=" + t, wait=false);
+    }
+}
+
+plot(u, fill=true, value=true, cmm="Final - Flow-dominated Transport", wait=true);
+
+cout << "Flow-dominated example completed. Notice the sharp advection front." << endl;

@@ -1,0 +1,123 @@
+// One Bifurcation Bronchodilator Diffusion Simulation
+// Heat equation with advection term and Robin boundary conditions
+// Author: eva118
+
+// Parameters
+real L1 = 5.0;      // Length of main bronchi
+real L2 = 3.0;      // Length of branch bronchi
+real R1 = 1.0;      // Radius of main bronchi
+real R2 = 0.7;      // Radius of branch bronchi
+real dt = 0.01;     // Time step
+real T = 2.0;       // Final time
+real D = 0.1;       // Diffusion coefficient
+real v = 1.0;       // Advection velocity
+real alpha = 1.0;   // Robin boundary condition parameter
+real beta = 1.0;    // Robin boundary condition parameter
+real angle = pi/6;  // Bifurcation angle (30 degrees)
+
+// Create mesh for one bifurcation geometry
+// Main bronchi
+border main_top(t=0, 1) { x = L1*t; y = R1; label = 1; }
+border main_bottom(t=0, 1) { x = L1*(1-t); y = -R1; label = 1; }
+border inlet(t=0, 1) { x = 0; y = R1*(1-2*t); label = 2; }
+
+// First branch (upper)
+real x1 = L1 + L2*cos(angle);
+real y1 = R2*sin(angle) + L2*sin(angle);
+border branch1_top(t=0, 1) { 
+    x = L1 + L2*t*cos(angle); 
+    y = R2*sin(angle) + L2*t*sin(angle) + R2*cos(angle); 
+    label = 1; 
+}
+border branch1_bottom(t=0, 1) { 
+    x = L1 + L2*t*cos(angle); 
+    y = R2*sin(angle) + L2*t*sin(angle) - R2*cos(angle); 
+    label = 1; 
+}
+border outlet1(t=0, 1) { 
+    x = x1; 
+    y = y1 + R2*cos(angle)*(1-2*t); 
+    label = 3; 
+}
+
+// Second branch (lower)
+real x2 = L1 + L2*cos(-angle);
+real y2 = -R2*sin(angle) + L2*sin(-angle);
+border branch2_top(t=0, 1) { 
+    x = L1 + L2*t*cos(-angle); 
+    y = -R2*sin(angle) + L2*t*sin(-angle) + R2*cos(-angle); 
+    label = 1; 
+}
+border branch2_bottom(t=0, 1) { 
+    x = L1 + L2*t*cos(-angle); 
+    y = -R2*sin(angle) + L2*t*sin(-angle) - R2*cos(-angle); 
+    label = 1; 
+}
+border outlet2(t=0, 1) { 
+    x = x2; 
+    y = y2 - R2*cos(-angle)*(1-2*t); 
+    label = 4; 
+}
+
+mesh Th = buildmesh(main_top(25) + main_bottom(25) + inlet(10) + 
+                   branch1_top(15) + branch1_bottom(15) + outlet1(8) + 
+                   branch2_top(15) + branch2_bottom(15) + outlet2(8));
+
+// Plot the mesh
+plot(Th, wait=true, cmm="One Bifurcation Mesh");
+
+// Finite element space
+fespace Vh(Th, P1);
+Vh u, v, uold;
+
+// Initial condition
+func real u0(real x, real y) {
+    if (x < 0.1) return 1.0;  // High concentration at inlet
+    else return 0.0;
+}
+
+// Initialize
+u = u0(x, y);
+uold = u;
+
+// Problem definition with Robin boundary conditions
+problem BronchodilatorDiffusion(u, v) =
+    int2d(Th)(u*v/dt)                           // Time derivative
+    + int2d(Th)(D*(dx(u)*dx(v) + dy(u)*dy(v)))  // Diffusion
+    + int2d(Th)(v*dx(u)*v)                      // Advection
+    + int1d(Th, 1)(alpha*u*v)                   // Robin BC on walls
+    - int2d(Th)(uold*v/dt)                      // Previous time step
+    - int1d(Th, 1)(beta*0*v)                    // Robin BC source
+    + on(2, u=1.0);                             // Dirichlet BC at inlet
+
+// Time stepping
+real t = 0;
+int iter = 0;
+while (t < T) {
+    t += dt;
+    iter++;
+    
+    BronchodilatorDiffusion;
+    uold = u;
+    
+    if (iter % 10 == 0) {
+        plot(u, fill=true, value=true, cmm="Concentration at t=" + t, 
+             dim=3, wait=false);
+    }
+}
+
+// Final visualization
+plot(u, fill=true, value=true, cmm="Final Concentration - One Bifurcation", 
+     dim=3, wait=true);
+
+// Save results
+{
+    ofstream file("one_bifurcation_solution.txt");
+    file << "# Final concentration distribution for one bifurcation" << endl;
+    file << "# x y concentration" << endl;
+    for (int i = 0; i < Th.nv; i++) {
+        file << Th(i).x << " " << Th(i).y << " " << u[][i] << endl;
+    }
+}
+
+cout << "One bifurcation simulation completed." << endl;
