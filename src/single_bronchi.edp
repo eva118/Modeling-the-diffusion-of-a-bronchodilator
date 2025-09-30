@@ -1,0 +1,85 @@
+// Single Bronchi Bronchodilator Diffusion Simulation
+// Heat equation with advection term and Robin boundary conditions
+// Author: eva118
+
+// Parameters
+real L = 10.0;      // Length of bronchi
+real R = 1.0;       // Radius of bronchi
+real dt = 0.01;     // Time step
+real T = 2.0;       // Final time
+real D = 0.1;       // Diffusion coefficient
+real v = 1.0;       // Advection velocity
+real alpha = 1.0;   // Robin boundary condition parameter
+real beta = 1.0;    // Robin boundary condition parameter
+
+// Create mesh for single bronchi (cylindrical geometry approximated in 2D)
+border b1(t=0, 1) { x = L*t; y = R; label = 1; }      // Top wall
+border b2(t=0, 1) { x = L*(1-t); y = -R; label = 1; } // Bottom wall  
+border b3(t=0, 1) { x = 0; y = R*(1-2*t); label = 2; }    // Inlet
+border b4(t=0, 1) { x = L; y = -R*(1-2*t); label = 3; }   // Outlet
+
+mesh Th = buildmesh(b1(20) + b2(20) + b3(10) + b4(10));
+
+// Plot the mesh
+plot(Th, wait=true, cmm="Single Bronchi Mesh");
+
+// Finite element space
+fespace Vh(Th, P1);
+Vh u, v, uold;
+
+// Initial condition - concentration at inlet
+func real u0(real x, real y) {
+    if (x < 0.1) return 1.0;  // High concentration at inlet
+    else return 0.0;
+}
+
+// Initialize
+u = u0(x, y);
+uold = u;
+
+// Problem definition: du/dt - D*Laplacian(u) + v*grad(u) = 0
+// With Robin boundary condition: alpha*u + beta*dn(u) = g on bronchi walls
+problem BronchodilatorDiffusion(u, v) =
+    int2d(Th)(u*v/dt)                           // Time derivative term
+    + int2d(Th)(D*(dx(u)*dx(v) + dy(u)*dy(v)))  // Diffusion term
+    + int2d(Th)(v*dx(u)*v)                      // Advection term
+    + int1d(Th, 1)(alpha*u*v)                   // Robin BC on walls (label 1)
+    - int2d(Th)(uold*v/dt)                      // Previous time step
+    - int1d(Th, 1)(beta*0*v)                    // Robin BC source term
+    + on(2, u=1.0);                             // Dirichlet BC at inlet
+
+// Time stepping loop
+real t = 0;
+int iter = 0;
+while (t < T) {
+    t += dt;
+    iter++;
+    
+    // Solve the problem
+    BronchodilatorDiffusion;
+    
+    // Update for next iteration
+    uold = u;
+    
+    // Plot every 10 iterations
+    if (iter % 10 == 0) {
+        plot(u, fill=true, value=true, cmm="Concentration at t=" + t, 
+             dim=3, wait=false);
+    }
+}
+
+// Final plot
+plot(u, fill=true, value=true, cmm="Final Concentration Distribution", 
+     dim=3, wait=true);
+
+// Save solution
+{
+    ofstream file("single_bronchi_solution.txt");
+    file << "# Final concentration distribution for single bronchi" << endl;
+    file << "# x y concentration" << endl;
+    for (int i = 0; i < Th.nv; i++) {
+        file << Th(i).x << " " << Th(i).y << " " << u[][i] << endl;
+    }
+}
+
+cout << "Simulation completed. Results saved to single_bronchi_solution.txt" << endl;

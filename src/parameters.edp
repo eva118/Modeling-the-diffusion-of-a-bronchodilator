@@ -1,0 +1,92 @@
+// Parameter Configuration for Bronchodilator Diffusion Simulations
+// This file contains various parameter sets for different scenarios
+// Author: eva118
+
+// Scenario 1: Standard Parameters
+real D_standard = 0.1;        // Diffusion coefficient
+real v_standard = 1.0;        // Advection velocity
+real alpha_standard = 1.0;    // Robin BC parameter (concentration weight)
+real beta_standard = 1.0;     // Robin BC parameter (flux weight)
+real dt_standard = 0.01;      // Time step
+real T_standard = 2.0;        // Final time
+
+// Scenario 2: High Diffusion (Rapid spreading)
+real D_high = 0.5;
+real v_high = 1.0;
+real alpha_high = 1.0;
+real beta_high = 1.0;
+real dt_high = 0.005;         // Smaller time step for stability
+real T_high = 1.5;
+
+// Scenario 3: High Advection (Flow-dominated)
+real D_advection = 0.05;
+real v_advection = 3.0;
+real alpha_advection = 1.0;
+real beta_advection = 1.0;
+real dt_advection = 0.005;
+real T_advection = 1.0;
+
+// Scenario 4: Absorption-dominated (Robin BC with absorption)
+real D_absorption = 0.1;
+real v_absorption = 1.0;
+real alpha_absorption = 2.0;  // Stronger absorption
+real beta_absorption = 0.5;   // Weaker flux contribution
+real dt_absorption = 0.01;
+real T_absorption = 3.0;      // Longer time to see absorption effects
+
+// Scenario 5: Reflection-dominated (Robin BC with reflection)
+real D_reflection = 0.1;
+real v_reflection = 1.0;
+real alpha_reflection = 0.1;  // Weak absorption
+real beta_reflection = 2.0;   // Strong flux contribution (reflection)
+real dt_reflection = 0.01;
+real T_reflection = 2.5;
+
+// Function to select parameter set
+macro SelectParameters(scenario)
+    if (scenario == "standard") {
+        D = D_standard; v = v_standard; 
+        alpha = alpha_standard; beta = beta_standard;
+        dt = dt_standard; T = T_standard;
+    }
+    else if (scenario == "high_diffusion") {
+        D = D_high; v = v_high; 
+        alpha = alpha_high; beta = beta_high;
+        dt = dt_high; T = T_high;
+    }
+    else if (scenario == "high_advection") {
+        D = D_advection; v = v_advection; 
+        alpha = alpha_advection; beta = beta_advection;
+        dt = dt_advection; T = T_advection;
+    }
+    else if (scenario == "absorption") {
+        D = D_absorption; v = v_absorption; 
+        alpha = alpha_absorption; beta = beta_absorption;
+        dt = dt_absorption; T = T_absorption;
+    }
+    else if (scenario == "reflection") {
+        D = D_reflection; v = v_reflection; 
+        alpha = alpha_reflection; beta = beta_reflection;
+        dt = dt_reflection; T = T_reflection;
+    }
+    else {
+        cout << "Unknown scenario, using standard parameters" << endl;
+        D = D_standard; v = v_standard; 
+        alpha = alpha_standard; beta = beta_standard;
+        dt = dt_standard; T = T_standard;
+    }
+//
+
+// Geometry parameters for different configurations
+real L_short = 8.0;           // Short bronchi length
+real L_medium = 10.0;         // Medium bronchi length  
+real L_long = 15.0;           // Long bronchi length
+
+real R_narrow = 0.8;          // Narrow bronchi radius
+real R_normal = 1.0;          // Normal bronchi radius
+real R_wide = 1.3;            // Wide bronchi radius
+
+// Bifurcation angles
+real angle_sharp = pi/8;      // Sharp bifurcation (22.5°)
+real angle_normal = pi/6;     // Normal bifurcation (30°)
+real angle_wide = pi/4;       // Wide bifurcation (45°)

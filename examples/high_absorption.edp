@@ -1,0 +1,104 @@
+// Example: High Absorption Scenario
+// Demonstrates Robin boundary conditions with strong absorption
+// Based on two_bifurcations.edp with modified parameters
+
+include "src/parameters.edp"
+
+// Set absorption scenario parameters
+real D = 0.1;
+real v = 1.0;
+real alpha = 3.0;    // Strong absorption on walls
+real beta = 0.3;     // Weak reflection
+real dt = 0.008;
+real T = 4.0;        // Longer simulation to see absorption effects
+
+// Use the two bifurcations geometry (most interesting)
+// [Include the mesh definition from two_bifurcations.edp]
+
+real L1 = 4.0, L2 = 3.0, L3 = 2.0;
+real R1 = 1.0, R2 = 0.7, R3 = 0.5;
+real angle1 = pi/6, angle2 = pi/8;
+
+// Main bronchi
+border main_top(t=0, 1) { x = L1*t; y = R1; label = 1; }
+border main_bottom(t=0, 1) { x = L1*(1-t); y = -R1; label = 1; }
+border inlet(t=0, 1) { x = 0; y = R1*(1-2*t); label = 2; }
+
+// Simplified bifurcation setup for example
+real x1 = L1 + L2*cos(angle1);
+real y1 = L2*sin(angle1);
+border branch1_top(t=0, 1) { 
+    x = L1 + L2*t*cos(angle1); 
+    y = L2*t*sin(angle1) + R2; 
+    label = 1; 
+}
+border branch1_bottom(t=0, 1) { 
+    x = L1 + L2*t*cos(angle1); 
+    y = L2*t*sin(angle1) - R2; 
+    label = 1; 
+}
+border outlet1(t=0, 1) { 
+    x = x1; 
+    y = y1 + R2*(1-2*t); 
+    label = 3; 
+}
+
+real x2 = L1 + L2*cos(-angle1);
+real y2 = L2*sin(-angle1);
+border branch2_top(t=0, 1) { 
+    x = L1 + L2*t*cos(-angle1); 
+    y = L2*t*sin(-angle1) + R2; 
+    label = 1; 
+}
+border branch2_bottom(t=0, 1) { 
+    x = L1 + L2*t*cos(-angle1); 
+    y = L2*t*sin(-angle1) - R2; 
+    label = 1; 
+}
+border outlet2(t=0, 1) { 
+    x = x2; 
+    y = y2 - R2*(1-2*t); 
+    label = 4; 
+}
+
+mesh Th = buildmesh(main_top(20) + main_bottom(20) + inlet(10) + 
+                   branch1_top(15) + branch1_bottom(15) + outlet1(8) + 
+                   branch2_top(15) + branch2_bottom(15) + outlet2(8));
+
+fespace Vh(Th, P1);
+Vh u, v, uold;
+
+// Initial condition
+u = (x < 0.2) ? 1.0 : 0.0;
+uold = u;
+
+// Problem with strong absorption Robin BC
+problem AbsorptionExample(u, v) =
+    int2d(Th)(u*v/dt)
+    + int2d(Th)(D*(dx(u)*dx(v) + dy(u)*dy(v)))
+    + int2d(Th)(v*dx(u)*v)
+    + int1d(Th, 1)(alpha*u*v)              // Strong absorption
+    - int2d(Th)(uold*v/dt)
+    - int1d(Th, 1)(beta*0.1*v)             // Weak source
+    + on(2, u=1.0);
+
+real t = 0;
+int iter = 0;
+cout << "Running high absorption example..." << endl;
+
+while (t < T) {
+    t += dt;
+    iter++;
+    
+    AbsorptionExample;
+    uold = u;
+    
+    if (iter % 50 == 0) {
+        cout << "t = " << t << ", max concentration = " << u[].max << endl;
+        plot(u, fill=true, value=true, cmm="High Absorption at t=" + t, wait=false);
+    }
+}
+
+plot(u, fill=true, value=true, cmm="Final - High Absorption Example", wait=true);
+
+cout << "High absorption example completed. Notice the reduced concentration near walls." << endl;
