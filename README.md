@@ -16,7 +16,8 @@ This project simulates the effect of a bronchodilator in one or multiple bronchi
 ## Usage
 1. Clone the repository:
    ```bash
-  git clone https://github.com/simon-eva/bronchi_simulation.git
+   git clone https://github.com/simon-eva/bronchi_simulation.git
+    ```
 2. Move into the project folder
 cd bronchi_simulation
 
