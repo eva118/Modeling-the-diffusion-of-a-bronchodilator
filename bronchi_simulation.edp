@@ -1,0 +1,204 @@
+real Wtronc=0.013/3; // Dimensions du tronc 
+real h = 0.85; // facteur d'homothétie
+//real Lbranche = h * Ltronc, Wbranche = h * Wtronc; // Dimensions des branches
+real Gen = 2; // Génération de l'arbre
+int NT=200;
+
+// Coordonnées des sommets du tronc
+real x0 = 0, y0 = -Wtronc / 2;
+real x1 = 3 * Wtronc, y1 = -Wtronc / 2;
+real x2 = 3 * Wtronc, y2 = Wtronc / 2;
+real x3 = 0, y3 = Wtronc / 2;
+
+// Coordonnées des branches
+real x7 = 9.5/2 * Wtronc, y7 = 2.79/2 * Wtronc;
+real x8 = 9.5/2 * Wtronc, y8 = 4.21/2 * Wtronc;
+real x4 = x8, y4 = -y8;
+real x5 = x7, y5 = -y7;
+real x6 = 3.5 * Wtronc, y6 = 0;
+
+
+// Coordonnées des nouvelles branches génération 2 (ajoutées)
+real x14 = 11.62/2 * Wtronc, y14 = 0.67/2 * Wtronc;
+real x15 = 12.33/2 * Wtronc, y15 = 1.38/2 * Wtronc;
+real x16 = 10.21/2 * Wtronc, y16 = 3.5/2 * Wtronc;
+real x17 = 12.33/2 * Wtronc, y17 = 5.62/2 * Wtronc;
+real x18 = 11.62/2 * Wtronc, y18 = 6.33/2 * Wtronc;
+
+real x9 = x18, y9 = -y18;
+real x10 = x17, y10 = -y17;
+real x11 = x16, y11 = -y16;
+real x12 = x15, y12 = -y15;
+real x13 = x14, y13 = -y14;
+
+
+
+
+//real x19 = x9 - 0.75*Wtronc, y19 = y9 - 0.75*Wtronc;
+//real x20 = x9 - 0.5*Wtronc, y20 = y9 - Wtronc;
+//real x21 = x9 + 0.25*Wtronc, y21 = y9 - 0.25*Wtronc;
+//real x22 = x9 + Wtronc, y22 = y9 - Wtronc;
+//real x23 = x9 + 1.25*Wtronc, y23 = y9 - 0.75*Wtronc; //ok
+
+//real x24 = x12 + 0.75*Wtronc, y24 = y12 - 0.75*Wtronc;
+//real x25 = x12 + Wtronc, y25 = y12 - 0.5*Wtronc;
+//real x26 = x12 + 0.25*Wtronc, y26 = y12 + 0.25*Wtronc;
+//real x27 = x12 + Wtronc, y27 = y12 + Wtronc;
+//real x28 = x12 + 0.75*Wtronc, y28 = y12 + 1.25*Wtronc; //ok
+
+//real x29 = x14 + 0.75*Wtronc, y29 = y14 - 0.75*Wtronc;
+//real x30 = x14 + Wtronc, y30 = y14 - 0.5*Wtronc;
+//real x31 = x14 + 0.25*Wtronc, y31 = y14 + 0.25*Wtronc;
+//real x32 = x14 + Wtronc, y32 = y14 + Wtronc;
+//real x33 = x14 + 0.75*Wtronc, y33 = y14 + 1.25*Wtronc; //ok
+
+//real x34 = x17 + 0.75*Wtronc, y34 = y17 + 0.75*Wtronc;
+//real x35 = x17 + 0.5*Wtronc, y35 = y17 + Wtronc;
+//real x36 = x17 - 0.25*Wtronc, y36 = y17 + 0.25*Wtronc;
+//real x37 = x17 - Wtronc, y37 = y17 + Wtronc;
+//real x38 = x17 - 1.25*Wtronc, y38 = y17 + 0.75*Wtronc; //ok
+
+// Définition des contours existants
+border TroncDroite(t=0,1) { x = (1-t)*x2 + t*x3; y = y2; label = 2; } // label 2
+border TroncHaut(t=0,1) { x = 0; y = (1-t)*y3 + t*y0; label = 1; } // label 1 en entrée
+border TroncGauche(t=0,1) { x = (1-t)*x0 + t*x1; y = y1; label = 2; } // label 2 
+////border TroncBas(t=0,1) { x = x1; y = (1-t)*y1 + t*y2; label = 1; } // label 1 pour "droite"
+
+border Branche11Gauche(t=0,1) { x = (1-t)*x1 + t*x4; y = (1-t)*y1 + t*y4; label = 3; }
+border Branche21Gauche(t=0,1) { x = (1-t)*x4 + t*x9; y = (1-t)*y4 + t*y9; label = 3; } 
+//border Branche31Gauche(t=0,1) { x = (1-t)*x9 + t*x19; y = (1-t)*y9 + t*y19; label = 3; }
+//border Branche31Bas(t=0,1) { x = (1-t)*x19 + t*x20; y = (1-t)*y19 + t*y20; label = 4; }
+//border Branche31Droite(t=0,1) { x = (1-t)*x20 + t*x21; y = (1-t)*y20 + t*y21; label = 3; }
+//border Branche32Gauche(t=0,1) { x = (1-t)*x21 + t*x22; y = (1-t)*y21 + t*y22; label = 3; }
+//border Branche32Bas(t=0,1) { x = (1-t)*x22 + t*x23; y = (1-t)*y22 + t*y23; label = 4; }
+//border Branche32Droite(t=0,1) { x = (1-t)*x23 + t*x10; y = (1-t)*y23 + t*y10; label = 3; }
+border Branche21Bas(t=0,1) { x = (1-t)*x9 + t*x10; y = (1-t)*y9 + t*y10; label = 4; }
+border Branche21Droite(t=0,1) { x = (1-t)*x10 + t*x11; y = (1-t)*y10 + t*y11; label = 3; }
+border Branche22Gauche(t=0,1) { x = (1-t)*x11 + t*x12; y = (1-t)*y11 + t*y12; label = 3; }
+border Branche22Bas(t=0,1) { x = (1-t)*x12 + t*x13; y = (1-t)*y12 + t*y13; label = 4; }
+//border Branche33Gauche(t=0,1) { x = (1-t)*x12 + t*x24; y = (1-t)*y12 + t*y24; label = 3; }
+//border Branche33Bas(t=0,1) { x = (1-t)*x24 + t*x25; y = (1-t)*y24 + t*y25; label = 4; }
+//border Branche33Droite(t=0,1) { x = (1-t)*x25 + t*x26; y = (1-t)*y25 + t*y26; label = 3; }
+//border Branche34Gauche(t=0,1) { x = (1-t)*x26 + t*x27; y = (1-t)*y26 + t*y27; label = 3; }
+//border Branche34Bas(t=0,1) { x = (1-t)*x27 + t*x28; y = (1-t)*y27 + t*y28; label = 4; }
+//border Branche34Droite(t=0,1) { x = (1-t)*x28 + t*x13; y = (1-t)*y28 + t*y13; label = 3; }
+border Branche22Droite(t=0,1) { x = (1-t)*x13 + t*x5; y = (1-t)*y13 + t*y5; label = 3; }
+////border Branche11bas(t=0,1) { x = (1-t)*x4 + t*x5; y = (1-t)*y4 + t*y5; label = 4; }
+border Branche11Droite(t=0,1) { x = (1-t)*x5 + t*x6; y = (1-t)*y5 + t*y6; label = 3; }
+border Branche12Gauche(t=0,1) { x = (1-t)*x6 + t*x7; y = (1-t)*y6 + t*y7; label = 3; }
+border Branche23Gauche(t=0,1) { x = (1-t)*x7 + t*x14; y = (1-t)*y7 + t*y14; label = 3; }
+border Branche23Bas(t=0,1) { x = (1-t)*x14 + t*x15; y = (1-t)*y14 + t*y15; label = 4; }
+//border Branche35Gauche(t=0,1) { x = (1-t)*x14 + t*x29; y = (1-t)*y14 + t*y29; label = 3; }
+//border Branche35Bas(t=0,1) { x = (1-t)*x29 + t*x30; y = (1-t)*y29 + t*y30; label = 4; }
+//border Branche35Droite(t=0,1) { x = (1-t)*x30 + t*x31; y = (1-t)*y30 + t*y31; label = 3; }
+//border Branche36Gauche(t=0,1) { x = (1-t)*x31 + t*x32; y = (1-t)*y31 + t*y32; label = 3; }
+//border Branche36Bas(t=0,1) { x = (1-t)*x32 + t*x33; y = (1-t)*y32 + t*y33; label = 4; }
+//border Branche36Droite(t=0,1) { x = (1-t)*x33 + t*x15; y = (1-t)*y33 + t*y15; label = 3; }
+border Branche23Droite(t=0,1) { x = (1-t)*x15 + t*x16; y = (1-t)*y15 + t*y16; label = 3; }
+border Branche24Gauche(t=0,1) { x = (1-t)*x16 + t*x17; y = (1-t)*y16 + t*y17; label = 3; }
+border Branche24Bas(t=0,1) { x = (1-t)*x17 + t*x18; y = (1-t)*y17 + t*y18; label = 4; }
+//border Branche37Gauche(t=0,1) { x = (1-t)*x17 + t*x34; y = (1-t)*y17 + t*y34; label = 3; }
+//border Branche37Bas(t=0,1) { x = (1-t)*x34 + t*x35; y = (1-t)*y34 + t*y35; label = 4; }
+//border Branche37Droite(t=0,1) { x = (1-t)*x35 + t*x36; y = (1-t)*y35 + t*y36; label = 3; }
+//border Branche38Gauche(t=0,1) { x = (1-t)*x36 + t*x37; y = (1-t)*y36 + t*y37; label = 3; }
+//border Branche38Bas(t=0,1) { x = (1-t)*x37 + t*x38; y = (1-t)*y37 + t*y38; label = 4; }
+//border Branche38Droite(t=0,1) { x = (1-t)*x38 + t*x18; y = (1-t)*y38 + t*y18; label = 3; }
+border Branche24Droite(t=0,1) { x = (1-t)*x18 + t*x8; y = (1-t)*y18 + t*y8; label = 3; }
+////border Branche12bas(t=0,1) { x = (1-t)*x7 + t*x8; y = (1-t)*y7 + t*y8; label = 4; }
+border Branche12Droite(t=0,1) { x = (1-t)*x8 + t*x2; y = (1-t)*y8 + t*y2; label = 3; }
+
+
+
+// Création du maillage avec les nouvelles branches
+mesh Th = buildmesh(
+    TroncDroite(20) + 
+    TroncHaut(20) + 
+    TroncGauche(20) +
+    //////TroncBas(20)
+    Branche11Gauche(15) + 
+    Branche21Gauche(10) + 
+    //Branche31Gauche(5) + 
+    //Branche31Bas(5) + 
+    //Branche31Droite(5) + 
+    //Branche32Gauche(5) + 
+    //Branche32Bas(5) + 
+    //Branche32Droite(5) + 
+    Branche21Bas(10) +
+    Branche21Droite(10) + 
+    Branche22Gauche(10) + 
+    //Branche33Gauche(5) + 
+    //Branche33Bas(5) + 
+    //Branche33Droite(5) + 
+    //Branche34Gauche(5) + 
+    //Branche34Bas(5) + 
+    //Branche34Droite(5) + 
+    Branche22Bas(10) +
+    Branche22Droite(10) + 
+    ////Branche11bas(15) +
+    Branche11Droite(15) + 
+    Branche12Gauche(15) + 
+    Branche23Gauche(10) + 
+    //Branche35Gauche(5) + 
+    //Branche35Bas(5) + 
+    //Branche35Droite(5) + 
+    //Branche36Gauche(5) + 
+    //Branche36Bas(5) + 
+    //Branche36Droite(5) + 
+    Branche23Bas(10) +
+    Branche23Droite(10) + 
+    Branche24Gauche(10) + 
+    //Branche37Gauche(5) + 
+    //Branche37Bas(5) + 
+    //Branche37Droite(5) + 
+    //Branche38Gauche(5) + 
+    //Branche38Bas(5) + 
+    //Branche38Droite(5) + 
+    Branche24Bas(10) +
+    Branche24Droite(10) + 
+    //Branche12bas(15) +
+    Branche12Droite(15)
+);
+
+    
+// Visualisation
+plot(Th, wait=true, cmm="Maillage fractal avec 4 branches");
+
+
+// Coefficient de diffusion
+real D = 0.00001;  // Coefficient de diffusion (m^2/s)
+real dt = 0.1;     // Pas de temps (s)
+//real v0=0; //vitesse initiale advection
+real lambda=1; //distance de dissipation avection
+real tau=10; //temps de dissipation avection
+real k=0.0001;
+
+// Espace fonctionnel
+fespace Vh2(Th, P1);
+Vh2 u, uold, v;
+
+//real u0=v0*exp(-10 * (x)); //densité initiale advection
+//u=u0+v0*dt;
+uold =exp(-10 * (x)); // densité initiale
+//real vit=0.005;
+real vit=0;
+
+// Résolution de l'équation de la chaleur
+macro Grad ( u ) [dx( u ) , dy( u ) ] // EOM
+for (int t = 0; t < NT; t++) {
+    //vit=0.005*exp(-t/tau);
+   // macro vit()[v0,0]; //vitesse advection
+    solve HeatEquation(u, v) =
+        int2d(Th)(u * v + dt * D * (Grad ( u )'* Grad ( v ) )) - int2d(Th)(uold * v)
+        +int2d(Th)(vit*dx(u)*v) // advection
+       // - int1d(Th, 3)(dt * D * (N.x * dx(u)) * v)- int1d(Th, 1)(dt * D * (N.x * dx(u))*v);//Neumann
+       //+ on(2, u = 0); // Dirichlet
+        - int1d(Th, 3)(dt * D * (N.x * dx(u)) * v)- int1d(Th, 1)(dt * D * (N.x * dx(u))*v) +int1d(Th, 2)(dt*k*u*v); //Robin
+    uold = u; // Mise à jour pour le pas de temps suivant
+    //vit=(u-uold)/dt;
+    //uold = uold + dt * D * (Grad ( u )'* Grad ( v ) ); // EOM
+        
+
+    // Visualisation
+    //plot(u, wait = 0.1, cmm = "Densite de bronchodilatateur");
+    plot(u, fill=1, dim=2, value=10, wait=1, cmm="Solutionint");
+}
