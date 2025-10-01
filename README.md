@@ -20,8 +20,9 @@ This project simulates the effect of a bronchodilator in one or multiple bronchi
     ```
 2. Move into the project folder
    ```bash
-cd bronchi_simulation
+   cd bronchi_simulation
    ```
+
 3.Open the FreeFEM script and select:
 - The boundary conditions you want (others can be commented out)
 - Whether to include the advection term
